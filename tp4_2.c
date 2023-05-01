@@ -10,7 +10,7 @@ typedef struct Tarea
     int Duracion; // entre 10 – 100
 } Tarea;
 
-int BuscarTarea(int id, Tarea **tarea, int cant);
+void BuscarTarea(Tarea **tarea, char *buff, int cant);
 
 int main()
 {
@@ -63,9 +63,10 @@ int main()
         }
     }
 
-    printf("Que tarea desea buscar? (ID)");
-    scanf("%d", &busc);
-    printf("%s", tarea[BuscarTarea(busc, tarea, cant)]->Descripcion);
+    fflush(stdin);
+    printf("Que tarea desea buscar?");
+    gets(buff);
+    BuscarTarea(tarea, buff, cant);
 
     for (int i = 0; i < cant; i++)
     {
@@ -91,15 +92,18 @@ int main()
     return 0;
 }
 
-int BuscarTarea(int id, Tarea **tarea, int cant)
+void BuscarTarea(Tarea **tarea, char *buff, int cant)
 {
-    Tarea **aux;
-    aux = tarea;
+    char *resultado = (char *)malloc(sizeof(char) * 100);
     for (int i = 0; i < cant; i++)
     {
-        if (id == aux[i]->TareaID)
+        if (tarea[i])
         {
-            return aux[i]->TareaID;
+            resultado = strstr(tarea[i]->Descripcion, buff);
+            if (resultado)
+            {
+                printf("Se encontro la tarea: %s\n", tarea[i]->Descripcion);
+            }
         }
     }
 }
