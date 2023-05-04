@@ -10,99 +10,110 @@ typedef struct Tarea
     int Duracion; // entre 10 – 100
 } Tarea;
 
-void BuscarTarea(Tarea **tarea, char *buff, int cant);
+void Crear(int cant, Tarea ***tarea);
+void Llenar(int cant, Tarea ***tarea);
+void Pendientes(int cant, Tarea ***tarea);
+void Realizadas(int cant, Tarea ***tarea);
+void Verificar(int cant, Tarea ***tarea1, Tarea ***tarea2);
+void BuscarTarea(int cant, Tarea ***tarea);
 
 int main()
 {
+    int cant;
+    Tarea **tareaP, **tareaR;
     srand(time(NULL));
-    int cant, opc, i_realizado, busc;
-    i_realizado = 0;
     printf("Ingrese cantidad de tareas: ");
     scanf("%d", &cant);
-    Tarea **tarea = (Tarea **)malloc(sizeof(Tarea *) * cant);  // tareas pendientes
-    Tarea **tarea2 = (Tarea **)malloc(sizeof(Tarea *) * cant); // tareas realizadas
-    char *buff = (char *)malloc(sizeof(char) * 100);
-
-    for (int i = 0; i < cant; i++)
-    {
-        tarea[i] = NULL;
-        tarea2[i] = NULL;
-    }
-
-    for (int i = 0; i < cant; i++)
-    {
-
-        tarea[i] = (Tarea *)malloc(sizeof(Tarea));
-        tarea[i]->TareaID = i;
-        tarea[i]->Duracion = (rand() % 90) + 10;
-        tarea[i]->Descripcion = (char *)malloc(sizeof(char) * 100);
-        fflush(stdin);
-        printf("Descripcion: ");
-        gets(buff);
-        strcpy(tarea[i]->Descripcion, buff);
-    }
-
-    for (int i = 0; i < cant; i++)
-    {
-        printf("Se resolvio TareaID: %d - Descripcion: %s?\t(Si = 1 No = 2)\n", tarea[i]->TareaID, tarea[i]->Descripcion);
-        scanf("%d", &opc);
-        if (opc == 1)
-        {
-            tarea2[i] = tarea[i];
-            tarea[i] = NULL;
-        }
-    }
-    printf("Tareas realizadas: \n");
-
-    for (int i = 0; i < cant; i++)
-    {
-        if (tarea2[i] != NULL)
-        {
-            printf("Descripcion: %s\n", tarea2[i]->Descripcion);
-            printf("Duracion: %d\n", tarea2[i]->Duracion);
-        }
-    }
-
-    fflush(stdin);
-    printf("Que tarea desea buscar?");
-    gets(buff);
-    BuscarTarea(tarea, buff, cant);
-
-    for (int i = 0; i < cant; i++)
-    {
-        if (tarea[i] != NULL)
-        {
-            free(tarea[i]->Descripcion);
-            free(tarea[i]);
-        }
-    }
-
-    for (int i = 0; i < cant; i++)
-    {
-        if (tarea2[i] != NULL)
-        {
-            free(tarea2[i]->Descripcion);
-            free(tarea2[i]);
-        }
-    }
-    free(tarea);
-    free(tarea2);
-    free(buff);
-
+    Crear(cant, &tareaP); // tareas pendientes
+    Crear(cant, &tareaR); // tareas realizadas
+    Llenar(cant, &tareaP);
+    Pendientes(cant, &tareaP);
+    Verificar(cant, &tareaP, &tareaR);
+    Pendientes(cant, &tareaP);
+    Realizadas(cant, &tareaR);
+    BuscarTarea(cant,&tareaP);
     return 0;
 }
 
-void BuscarTarea(Tarea **tarea, char *buff, int cant)
+void Crear(int cant, Tarea ***tarea)
 {
-    char *resultado = (char *)malloc(sizeof(char) * 100);
+    *tarea = (Tarea **)malloc(cant * sizeof(Tarea *));
     for (int i = 0; i < cant; i++)
     {
-        if (tarea[i])
+        (*tarea)[i] = NULL;
+    }
+}
+
+void Llenar(int cant, Tarea ***tarea)
+{
+    char *buff = (char *)malloc(sizeof(char) * 100);
+    for (int i = 0; i < cant; i++)
+    {
+        (*tarea)[i] = (Tarea *)malloc(sizeof(Tarea));
+        (*tarea)[i]->TareaID = i;
+        (*tarea)[i]->Duracion = (rand() % 90) + 10;
+        fflush(stdin);
+        printf("Descripcion tarea %d: ", (*tarea)[i]->TareaID);
+        gets(buff);
+        (*tarea)[i]->Descripcion = (char *)malloc(sizeof(char) * strlen(buff) + 1);
+        strcpy((*tarea)[i]->Descripcion, buff);
+    }
+}
+
+void Pendientes(int cant, Tarea ***tarea)
+{
+    printf("--------TAREAS PENDIENTES--------\n");
+    for (int i = 0; i < cant; i++)
+    {
+        if ((*tarea)[i] != NULL)
         {
-            resultado = strstr(tarea[i]->Descripcion, buff);
-            if (resultado)
+            printf("Tarea %d: %s - %d dias\n", (*tarea)[i]->TareaID, (*tarea)[i]->Descripcion, (*tarea)[i]->Duracion);
+        }
+    }
+}
+
+void Realizadas(int cant, Tarea ***tarea)
+{
+    printf("--------TAREAS REALIZADAS--------\n");
+    for (int i = 0; i < cant; i++)
+    {
+        if ((*tarea)[i] != NULL)
+        {
+            printf("Tarea %d: %s - %d dias\n", (*tarea)[i]->TareaID, (*tarea)[i]->Descripcion, (*tarea)[i]->Duracion);
+        }
+    }
+}
+
+void Verificar(int cant, Tarea ***tarea1, Tarea ***tarea2)
+{
+    int opc;
+    for (int i = 0; i < cant; i++)
+    {
+        printf("Se resolvio Tarea %d - Descripcion: %s?\t(Si = 1 No = 2)\n", (*tarea1)[i]->TareaID, (*tarea1)[i]->Descripcion);
+        scanf("%d", &opc);
+        if (opc == 1)
+        {
+            (*tarea2)[i] = (*tarea1)[i];
+            (*tarea1)[i] = NULL;
+        }
+    }
+}
+
+void BuscarTarea(int cant, Tarea ***tarea)
+{
+    char *buff = (char *)malloc(sizeof(char) * 100);
+    char *resultado;
+    fflush(stdin);
+    printf("Que tarea desea buscar?\n");
+    gets(buff);
+    for (int i = 0; i < cant; i++)
+    {
+        if ((*tarea)[i] != NULL)
+        {
+            resultado = strstr((*tarea)[i]->Descripcion, buff);
+            if (resultado != NULL)
             {
-                printf("Se encontro la tarea: %s\n", tarea[i]->Descripcion);
+                printf("Se encontro la tarea: %s\n", (*tarea)[i]->Descripcion);
             }
         }
     }
